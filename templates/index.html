@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assistente de Excel</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        #chatbox {
+            height: 400px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 18px;
+            margin: 8px 0;
+            display: inline-block;
+            max-width: 70%;
+            float: right;
+            clear: both;
+        }
+        .bot-message {
+            background-color: #f1f1f1;
+            padding: 8px 12px;
+            border-radius: 18px;
+            margin: 8px 0;
+            display: inline-block;
+            max-width: 70%;
+            float: left;
+            clear: both;
+        }
+        #user_input {
+            width: calc(100% - 90px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h1 {
+            color: #2e7d32;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Assistente de Excel</h1>
+    <div id="chatbox">
+        <p class="bot-message"><b>Assistente:</b> Olá! Sou seu ajudante de Excel. Posso te explicar sobre conceitos básicos, atalhos, funções e dicas profissionais. Como posso ajudar?</p>
+    </div>
+    <div style="display: flex;">
+        <input type="text" id="user_input" placeholder="Digite sua pergunta sobre Excel..." autofocus>
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById('user_input');
+            const chatbox = document.getElementById('chatbox');
+            
+            if (userInput.value.trim() === '') return;
+            
+            // Mostra mensagem do usuário
+            chatbox.innerHTML += `<p class="user-message"><b>Você:</b> ${userInput.value}</p>`;
+            
+            // Envia para o backend
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `user_input=${encodeURIComponent(userInput.value)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mostra resposta do bot
+                chatbox.innerHTML += `<p class="bot-message"><b>Assistente:</b> ${data.response}</p>`;
+                userInput.value = '';
+                chatbox.scrollTop = chatbox.scrollHeight;
+            });
+        }
+        
+        // Permitir enviar com Enter
+        document.getElementById('user_input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
